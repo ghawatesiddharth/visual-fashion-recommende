@@ -1,77 +1,95 @@
-FashionVision AI
-AI-Powered Visual Fashion Recommendation System
-README.md — Complete GitHub Documentation
-Copy the Markdown content below into a file named README.md in your project root.
-FashionVision AI
-AI-Powered Visual Fashion Recommendation System
-FashionVision AI is a deep-learning-based visual fashion recommendation system that finds visually similar fashion products from a catalog using an uploaded image.
-Instead of relying only on text-based product search, the system uses computer vision to understand the visual appearance of a fashion item and retrieve similar products from a fashion catalog.
-Features
-•	Upload a fashion image through a modern web interface.
-•	Generate visual embeddings using a trained Siamese neural network.
-•	Search similar products using FAISS.
-•	Return the top 5, 10, or 15 recommendations.
-•	Display product category, color, gender, similarity score, and product information.
-•	FastAPI backend for ML inference.
-•	React frontend for an interactive dashboard.
-•	Responsive fashion-tech UI.
-System Architecture
-    User
-      |
-      v
-    React Frontend
-      |
-      | Image Upload
-      v
-    FastAPI Backend
-      |
-      v
-    Image Preprocessing
-      |
-      v
-    Siamese Encoder
-      |
-      v
-    256-D L2-Normalized Embedding
-      |
-      v
-    FAISS Similarity Search
-      |
-      v
-    Fashion Product Metadata
-      |
-      v
-    Top-K Visual Recommendations
-Technology Stack
-Frontend
-•	React
-•	Vite
-•	JavaScript
-•	CSS
-•	Lucide React
-Backend
-•	Python
-•	FastAPI
-•	Uvicorn
-•	Pillow
-•	NumPy
-•	Pandas
-•	Python Multipart
-Machine Learning
-•	TensorFlow
-•	Keras
-•	EfficientNetB0
-•	Siamese Network
-•	Contrastive Loss
-•	Image Embeddings
-•	L2 Normalization
-Similarity Search
-•	FAISS
-Dataset
-The project uses the Fashion Product Images Dataset by Param Aggarwal from Kaggle.
-The original dataset contains approximately 44,000 fashion products. For this project, a balanced subset of 1,800 products was selected.
-Selected Categories
-| Category | Samples |
+# FashionVision AI
+### AI-Powered Visual Fashion Recommendation System
+
+FashionVision AI is a deep-learning-based visual fashion recommendation system that retrieves visually similar fashion products from a catalog using an uploaded image. It converts images into numerical embeddings and uses FAISS to find nearby catalog products.
+
+> **Project type:** Working academic prototype  
+> **Core workflow:** Upload an image → extract visual features → search similar products → display recommendations
+
+## Table of Contents
+
+- [Features](#features)
+- [Architecture](#system-architecture)
+- [Technology Stack](#technology-stack)
+- [Dataset](#dataset)
+- [Machine Learning Pipeline](#machine-learning-pipeline)
+- [Training Results](#training-results)
+- [Project Structure](#project-structure)
+- [Runtime Artifacts](#runtime-artifacts)
+- [API](#backend-api)
+- [Example Results](#example-recommendation)
+- [Installation](#installation-and-setup)
+- [Run the Application](#run-the-application)
+- [Testing](#testing)
+- [Limitations and Future Work](#limitations)
+- [Author](#author)
+- [License and Dataset Notes](#license-and-dataset-notes)
+
+## Features
+
+- Upload a fashion image through a React web interface.
+- Generate visual embeddings with a trained Siamese encoder based on EfficientNetB0.
+- Search similar products using FAISS.
+- Request the top **5, 10, or 15** recommendations.
+- Display product images and available metadata, including category, colour, gender, and similarity score.
+- Serve model inference through FastAPI.
+- Provide a responsive interface for end-to-end image-based recommendations.
+
+## System Architecture
+
+```text
+User
+ |
+ v
+React Frontend
+ | Image Upload
+ v
+FastAPI Backend
+ |
+ v
+Image Preprocessing
+ |
+ v
+Siamese Encoder
+ |
+ v
+256-D L2-Normalized Embedding
+ |
+ v
+FAISS Similarity Search
+ |
+ v
+Product Metadata
+ |
+ v
+Top-K Recommendations
+ |
+ v
+React Recommendation Cards
+```
+
+**Components**
+1. **React frontend:** Image selection, preview, recommendation count, loading state, and result cards.
+2. **FastAPI backend:** Receives the image, preprocesses it, runs inference, searches FAISS, and returns JSON.
+3. **Siamese encoder:** Converts an image into a 256-dimensional embedding.
+4. **FAISS index:** Retrieves nearby catalog embeddings.
+5. **Product metadata:** Supplies product IDs, names, categories, and available attributes.
+
+## Technology Stack
+
+| Area | Technologies |
+|---|---|
+| Frontend | React, Vite, JavaScript, CSS, Lucide React |
+| Backend | Python, FastAPI, Uvicorn, python-multipart |
+| Machine learning | TensorFlow, Keras, EfficientNetB0-based encoder, Siamese network, contrastive loss |
+| Similarity search | FAISS |
+| Data and images | NumPy, Pandas, Pillow |
+
+## Dataset
+
+The project uses the **Fashion Product Images Dataset by Param Aggarwal**, obtained from Kaggle. The original metadata contains approximately **44,424 product records**. A balanced subset of **1,800 products** was selected.
+
+| Category | Products |
 |---|---:|
 | Bags | 300 |
 | Bottomwear | 300 |
@@ -80,258 +98,365 @@ Selected Categories
 | Shoes | 300 |
 | Topwear | 300 |
 | **Total** | **1,800** |
-Data Split
-•	Training: 70%
-•	Validation: 15%
-•	Testing: 15%
-•	Stratified split by category
-Machine Learning Pipeline
-1. Image Preprocessing
-Uploaded images are converted to RGB, resized to 224 x 224 pixels, converted to NumPy arrays, and prepared for model inference.
-2. Feature Extraction
-An EfficientNetB0-based encoder converts each fashion image into a compact 256-dimensional visual representation.
-The embeddings are L2-normalized before similarity search.
-3. Siamese Network
-A Siamese architecture was trained to learn a visual similarity space. Similar fashion images are encouraged to have closer embeddings.
-Contrastive loss was used during training.
-4. Training
-The final Siamese encoder was trained for 3 epochs.
-| Epoch | Training Loss |
+
+### Data split
+
+The dataset was split by category using a stratified approach.
+
+| Split | Proportion | Approximate count |
+|---|---:|---:|
+| Training | 70% | 1,260 |
+| Validation | 15% | 270 |
+| Testing | 15% | 270 |
+| **Total** | **100%** | **1,800** |
+
+Counts are approximate because per-category rounding may affect exact totals.
+
+## Machine Learning Pipeline
+
+### 1. Image preprocessing
+The query image is converted to RGB, resized to **224 × 224** pixels, converted into a numerical tensor, and scaled using the preprocessing expected by the model.
+
+### 2. Feature extraction
+An EfficientNetB0-based encoder extracts visual features. The retrieval pipeline uses a **256-dimensional embedding**.
+
+### 3. Siamese network
+A Siamese architecture learns an embedding space for visual similarity. During training, image pairs and a contrastive-loss objective encourage similar examples to have closer representations and dissimilar examples to be farther apart.
+
+### 4. Embedding normalization
+Embeddings are **L2-normalized** before similarity search.
+
+### 5. Catalog embedding generation
+Catalog images are passed through the trained encoder. The resulting embedding array was saved as `siamese_embeddings.npy` and has shape **(1800, 256)**.
+
+### 6. FAISS indexing
+FAISS indexes the catalog vectors. At inference time, the uploaded image is encoded, nearby vectors are retrieved, and their corresponding product metadata is returned.
+
+```text
+Uploaded Image → Preprocessing → Siamese Encoder
+       → 256-D Embedding → FAISS Search
+       → Top-K Matches → Metadata → UI Cards
+```
+
+## Training Results
+
+The final Siamese encoder was trained for three epochs.
+
+| Epoch | Training loss |
 |---:|---:|
 | 1 | 0.2364 |
 | 2 | 0.1332 |
 | 3 | 0.1105 |
-Final model:
-    models/siamese_encoder.keras
-5. FAISS Similarity Search
-Catalog images are converted into 256-dimensional embeddings and indexed with FAISS.
-The recommendation flow is:
-    Uploaded Image
-          |
-          v
-    Siamese Encoder
-          |
-          v
-    256-D Embedding
-          |
-          v
-    FAISS Search
-          |
-          v
-    Top-K Similar Products
-FAISS index:
-    faiss/fashion.index
-Project Structure
-    visual-fashion-recommender/
-    |
-    +-- backend/
-    |   +-- main.py
-    |
-    +-- frontend/
-    |   +-- src/
-    |   |   +-- App.jsx
-    |   |   +-- App.css
-    |   |   +-- main.jsx
-    |   +-- package.json
-    |   +-- package-lock.json
-    |   +-- index.html
-    |   +-- vite.config.js
-    |
-    +-- models/
-    |   +-- siamese_encoder.keras
-    |
-    +-- faiss/
-    |   +-- fashion.index
-    |
-    +-- metadata/
-    |   +-- products.csv
-    |
-    +-- test_model.py
-    +-- test_recommendation.py
-    +-- requirements.txt
-    +-- .gitignore
-    +-- README.md
-Backend API
-GET /
-Returns application status and basic model information.
-GET /health
-Checks backend health.
-POST /recommend
-Accepts an uploaded image and returns visually similar fashion products.
-Example:
-    POST http://127.0.0.1:8000/recommend?top_k=5
-Supported frontend values:
-    5
-    10
-    15
-GET /catalog/{product_id}.jpg
-Serves a catalog product image.
-Example Recommendation
-A sample test using product ID 10018 returned visually similar Bottomwear products.
-| Rank | Product ID | Category | Similarity |
+
+The loss decreased over the recorded epochs, showing improvement on the training objective. **Training loss is not recommendation accuracy.** A standardized retrieval metric such as Recall@K or Precision@K has not yet been established, so this README does not claim a retrieval-accuracy percentage.
+
+**Saved model:** `models/siamese_encoder.keras`
+
+## Project Structure
+
+```text
+visual-fashion-recommender/
+├── backend/
+│   └── main.py
+├── frontend/
+│   ├── src/
+│   │   ├── App.jsx
+│   │   ├── App.css
+│   │   ├── index.css
+│   │   ├── main.jsx
+│   │   └── assets/
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── index.html
+│   └── vite.config.js
+├── models/
+│   └── siamese_encoder.keras
+├── faiss/
+│   └── fashion.index
+├── metadata/
+│   └── products.csv
+├── catalog_images/       # Local product images; may be excluded from Git
+├── test_model.py
+├── test_recommendation.py
+├── requirements.txt
+├── .gitignore
+└── README.md
+```
+
+Training notebooks and intermediate artifacts may also exist in the development workspace but are not required for normal inference.
+
+## Runtime Artifacts
+
+The backend expects these files at the configured paths:
+
+```text
+models/siamese_encoder.keras
+faiss/fashion.index
+metadata/products.csv
+catalog_images/
+```
+
+Catalog image filenames must match product IDs, for example `catalog_images/10018.jpg`.
+
+> **Fresh-clone note:** If `catalog_images/` is excluded from Git due to repository size, obtain the prepared images separately and place them in that directory. Without them, product-image URLs will not show the expected catalog pictures.
+
+The normal inference path needs the trained encoder, FAISS index, metadata CSV, and catalog images. The saved embedding array and intermediate training models are not required at runtime when the index has already been built.
+
+## Backend API
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/` | Application status and basic model information |
+| `GET` | `/health` | Backend health check |
+| `POST` | `/recommend?top_k=5` | Accepts an uploaded image and returns similar products |
+| `GET` | `/catalog/{product_id}.jpg` | Serves a catalog product image |
+
+The frontend supports `top_k` values of **5, 10, and 15**.
+
+Example endpoint:
+
+```text
+http://127.0.0.1:8000/recommend?top_k=5
+```
+
+An illustrative result item may look like this; actual values come from the project metadata:
+
+```json
+{
+  "id": 10018,
+  "product": "Example product name",
+  "category": "Bottomwear",
+  "master_category": "Apparel",
+  "gender": "Men",
+  "colour": "Black",
+  "season": "Summer",
+  "usage": "Sports",
+  "similarity": 1.0,
+  "image": "/catalog/10018.jpg"
+}
+```
+
+When the backend is running:
+- API root: http://127.0.0.1:8000
+- Swagger documentation: http://127.0.0.1:8000/docs
+- Health check: http://127.0.0.1:8000/health
+
+## Example Recommendation
+
+A sample test using catalog product ID `10018` returned:
+
+| Rank | Product ID | Category | Similarity score |
 |---:|---:|---|---:|
 | 1 | 10018 | Bottomwear | 1.0000 |
 | 2 | 49956 | Bottomwear | 0.9869 |
 | 3 | 44919 | Bottomwear | 0.9844 |
 | 4 | 32457 | Bottomwear | 0.9829 |
 | 5 | 57097 | Bottomwear | 0.9819 |
-Installation
-1. Clone the repository
-    git clone <YOUR_GITHUB_REPOSITORY_URL>
-    cd visual-fashion-recommender
-2. Create Python environment
-Windows PowerShell:
-    python -m venv venv
-    .\venv\Scripts\Activate.ps1
-3. Install backend dependencies
-    python -m pip install -r requirements.txt
-Run Backend
-From the project root:
-    python -m uvicorn backend.main:app --reload
-Backend:
-    http://127.0.0.1:8000
-Swagger API documentation:
-    http://127.0.0.1:8000/docs
-Run Frontend
-Open another terminal:
-    cd frontend
-    npm install
-    npm run dev
-Frontend:
-    http://localhost:5173/
-Complete Application Workflow
-1. Start the FastAPI backend.
+
+These are scores from a sample retrieval run, not percentages of model accuracy. A query using a catalog image may return that same image first.
+
+## Installation and Setup
+
+### Prerequisites
+- Python compatible with the dependencies in `requirements.txt`
+- Node.js and npm
+- Git
+- The model, FAISS index, metadata CSV, and catalog images
+
+The project was developed in Windows with Python 3.12.10. TensorFlow and FAISS compatibility can vary across operating systems and Python versions.
+
+### 1. Clone the repository
+
+Replace the placeholder with your actual repository URL.
+
+```powershell
+git clone https://github.com/ghawatesiddharth/visual-fashion-recommende.git
+cd visual-fashion-recommender
+```
+
+### 2. Create and activate a virtual environment
+
+Run from the project root in Windows PowerShell:
+
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+```
+
+### 3. Install backend dependencies
+
+```powershell
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+If a required package is missing, install it in the active environment and update `requirements.txt` so the setup remains reproducible.
+
+### 4. Restore runtime artifacts
+Confirm the model, index, metadata, and `catalog_images/` directory exist at the paths listed above. If images are not included in Git, obtain them separately from the appropriate dataset source.
+
+### 5. Install frontend dependencies
+
+Open a second terminal:
+
+```powershell
+cd frontend
+npm install
+```
+
+## Run the Application
+
+### Start the backend
+
+From the **project root**, with the Python environment activated:
+
+```powershell
+python -m uvicorn backend.main:app --reload
+```
+
+Backend URL: `http://127.0.0.1:8000`
+
+### Start the frontend
+
+In a separate terminal:
+
+```powershell
+cd frontend
+npm run dev
+```
+
+Open the local URL printed by Vite, usually `http://localhost:5173/`. Keep both terminals running while using the application.
+
+## Application Workflow
+
+1. Start FastAPI.
 2. Start the React frontend.
 3. Open the frontend in a browser.
-4. Upload a fashion image.
-5. Select the number of recommendations.
-6. Click "Find Similar Styles".
-7. React sends the image to FastAPI.
-8. FastAPI preprocesses the image.
-9. The Siamese encoder creates a 256-D embedding.
-10. FAISS searches the nearest catalog embeddings.
-11. Product metadata is retrieved.
-12. Recommendations are displayed in the dashboard.
-Model Artifacts
-Required runtime artifacts:
-    models/siamese_encoder.keras
-    faiss/fashion.index
-    metadata/products.csv
-Intermediate training models and unused embeddings are not required for normal application inference.
-Catalog Images
-The application expects catalog images in:
-    catalog_images/
-with filenames matching product IDs, for example:
-    catalog_images/10018.jpg
-    catalog_images/49956.jpg
-    catalog_images/44919.jpg
-The complete catalog contains 1,800 images. If these images are excluded from GitHub because of repository-size considerations, they must be supplied separately for the recommendation cards to display product images.
-Testing
-Model loading:
-    python test_model.py
-Recommendation pipeline:
-    python test_recommendation.py
-These scripts verify that the trained model and recommendation pipeline work correctly.
-Current Capabilities
-•	Visual fashion search
-•	Similar-product recommendation
-•	Top-K recommendations
-•	Six fashion categories
-•	1,800-product catalog
-•	256-dimensional embeddings
-•	FAISS vector search
-•	Siamese neural network
-•	FastAPI backend
-•	React frontend
-•	End-to-end image recommendation workflow
-Limitations
-•	The system performs visual similarity search rather than complete semantic fashion understanding.
-•	Results depend on the quality and variety of the catalog.
-•	The current model uses the selected 1,800-product subset.
-•	Live prices, stock availability, and external shopping links are not currently integrated.
-•	Recommendations should be interpreted as visually similar products, not guaranteed exact product matches.
-Future Improvements
-1. Expand the fashion catalog.
-2. Add real-time product search.
-3. Integrate visual shopping/search services.
-4. Add price and availability information.
-5. Add external shopping links.
-6. Add personalized user preferences.
-7. Add recommendation history.
-8. Add clothing attribute detection.
-9. Add outfit recommendation.
-10. Improve ranking and re-ranking.
-11. Deploy the application to the cloud.
-12. Add authentication and user profiles.
-Why Siamese Networks?
-A traditional classifier answers:
-    What category does this image belong to?
-A Siamese network is better suited to:
-    How visually similar are these two images?
-Fashion recommendation requires finding visually similar products, so learning an embedding space is useful.
-Why FAISS?
-Comparing an uploaded image with every catalog image becomes inefficient as the catalog grows.
-FAISS provides efficient vector similarity search.
-The system therefore uses:
-    Image
-      |
-      v
-    Neural Network
-      |
-      v
-    Embedding
-      |
-      v
-    FAISS
-      |
-      v
-    Nearest Neighbors
-Project Status
-Working academic prototype.
-Implemented and tested:
-•	Dataset preparation
-•	Model training
-•	Siamese encoder
-•	Embedding generation
-•	FAISS indexing
-•	Metadata integration
-•	FastAPI recommendation API
-•	React frontend
-•	End-to-end recommendation workflow
-Author
-Siddharth Ghawate
-B-Tech Student
+4. Upload or drag and drop a fashion image.
+5. Preview the selected image.
+6. Choose 5, 10, or 15 recommendations.
+7. Click **Find Similar Styles**.
+8. React sends the image to FastAPI.
+9. FastAPI preprocesses the image and runs the encoder.
+10. The encoder generates a normalized 256-dimensional embedding.
+11. FAISS retrieves nearby catalog embeddings.
+12. Product metadata is attached to the results.
+13. React displays recommendation cards and similarity scores.
+
+## Testing
+
+Run from the project root with the Python environment activated:
+
+```powershell
+python test_model.py
+python test_recommendation.py
+```
+
+These scripts are intended to check model loading and the recommendation pipeline; the precise checks depend on their current implementation.
+
+Manual integration checks:
+- Verify the API root, health endpoint, and Swagger page.
+- Upload a valid image and check the response.
+- Try each supported `top_k` value.
+- Confirm product IDs match the metadata.
+- Confirm catalog image URLs load.
+- Inspect the browser console and backend terminal if an error occurs.
+
+## Current Capabilities
+
+- Image-based visual fashion search.
+- Similar-product recommendations.
+- Top-K results: 5, 10, or 15.
+- Six selected fashion categories and a 1,800-product catalog.
+- 256-dimensional L2-normalized embeddings.
+- Siamese encoder and FAISS nearest-neighbor search.
+- FastAPI backend and React frontend.
+- End-to-end image-to-recommendation workflow.
+
+## Limitations
+
+- The system focuses on visual similarity rather than complete semantic fashion understanding.
+- Quality depends on the catalog, image diversity, and training data.
+- The current catalog is a selected subset of 1,800 products.
+- Live prices, inventory, and external shopping links are not integrated.
+- Similarity does not guarantee an exact product match or a suitable replacement.
+- Standardized retrieval evaluation using Recall@K or Precision@K has not yet been reported.
+- Catalog images must be available locally for product pictures to display.
+
+## Future Improvements
+
+- Expand the catalog and category coverage.
+- Evaluate retrieval with Recall@K, Precision@K, and human relevance checks.
+- Improve training data and positive/negative pair selection.
+- Experiment with ranking and re-ranking strategies.
+- Add clothing-attribute detection and outfit recommendations.
+- Add user preferences and recommendation history.
+- Integrate prices, availability, and shopping links where permitted.
+- Add authentication and user profiles.
+- Deploy the application to cloud infrastructure.
+- Improve logging, monitoring, error handling, and automated tests.
+
+## Design Decisions
+
+### Why a Siamese network?
+A conventional classifier predicts a label such as shoes or dresses. A similarity-learning model learns image representations that can be compared with one another. This suits a retrieval workflow where the user may not know the product name.
+
+### Why embeddings?
+Embeddings represent images as compact numerical vectors, allowing the system to compare visual representations rather than raw image files.
+
+### Why FAISS?
+FAISS provides optimized nearest-neighbor search tools for retrieving candidate products from a vector index more efficiently as a catalog grows.
+
+### Why FastAPI and React?
+FastAPI exposes the inference and retrieval pipeline through HTTP endpoints. React provides the interactive image-upload and recommendation interface. Separating them supports independent development and maintenance.
+
+## Project Status
+
+**Status: Working academic prototype.**
+
+Implemented components include dataset preparation, model training, a Siamese encoder, catalog embedding generation, FAISS indexing, metadata integration, a FastAPI recommendation API, a React frontend, and an end-to-end recommendation workflow. Formal retrieval benchmarking and production deployment remain potential future work.
+
+## Author
+
+**Siddharth Ghawate**  
+B.Tech Student  
 Machine Learning / Data Science Project
-License
-This project is intended for academic and educational purposes.
-Dataset rights and usage are subject to the original dataset license and terms provided by its original source.
-GitHub — Essential Files Checklist
-Keep these essential files in the repository:
-•	backend/main.py
-•	frontend/src/App.jsx
-•	frontend/src/App.css
-•	frontend/src/main.jsx
-•	frontend/package.json
-•	frontend/package-lock.json
-•	frontend/index.html
-•	frontend/vite.config.js
-•	models/siamese_encoder.keras
-•	faiss/fashion.index
-•	metadata/products.csv
-•	test_model.py
-•	test_recommendation.py
-•	requirements.txt
-•	.gitignore
-•	README.md
-Do not upload:
-•	venv/
-•	node_modules/
-•	temp_* folders
-•	*.zip files
-•	frontend/dist/
-•	frontend/.vite/
-•	unused intermediate models/embeddings
-Final Git Commands
+
+## License and Dataset Notes
+
+This repository is intended for academic and educational purposes. Review the original dataset's license and terms on its source page before redistributing the dataset, product images, or derived assets. The code and dataset may be subject to different licensing terms.
+
+---
+
+## GitHub Repository Checklist
+
+Before pushing, verify that the repository includes the essential files:
+
+- `backend/main.py`
+- `frontend/src/App.jsx`
+- `frontend/src/App.css`
+- `frontend/src/index.css`
+- `frontend/src/main.jsx`
+- `frontend/package.json`
+- `frontend/package-lock.json`
+- `frontend/index.html`
+- `frontend/vite.config.js`
+- `models/siamese_encoder.keras`
+- `faiss/fashion.index`
+- `metadata/products.csv`
+- `requirements.txt`
+- `test_model.py`
+- `test_recommendation.py`
+- `.gitignore`
+- `README.md`
+
+Do not commit environment folders or generated build/cache files such as `venv/`, `.venv/`, `frontend/node_modules/`, `frontend/dist/`, `frontend/.vite/`, or `__pycache__/`.
+
+If `catalog_images/` is excluded from Git, document how to obtain and restore those images. Do not assume a fresh clone contains them.
+
+### Final Git commands
+
+```powershell
 git status --short
 git add .
 git status
@@ -339,3 +464,10 @@ git commit -m "Build FashionVision AI visual recommendation system"
 git branch -M main
 git remote -v
 git push -u origin main
+```
+
+If a remote is already configured, do not add it again. If there is no remote, configure it before pushing:
+
+```powershell
+git remote add origin <YOUR_GITHUB_REPOSITORY_URL>
+```
